@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
@@ -15,6 +14,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+
+import static chrzescijanek.filip.demo.employee.EmployeeApiRouter.PATH;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,10 +38,10 @@ public class EmployeeApiTest {
     @Test
     public void testList() {
         webTestClient
-                .get().uri("/employees")
+                .get().uri(PATH)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBodyList(Employee.class)
                 .hasSize(10)
                 .contains(employees);
@@ -51,11 +53,11 @@ public class EmployeeApiTest {
                 List.of(new Address("streetName", "1", "2", "12-345", "City", "Country")));
         val mono = Mono.just(dto);
         webTestClient
-                .post().uri("/employees")
+                .post().uri(PATH)
                 .body(mono, Employee.Dto.class)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody(Employee.class)
                 .consumeWith(response -> Assertions.assertEquals(Objects.requireNonNull(response.getResponseBody()).toDto(), dto));
     }
@@ -64,10 +66,10 @@ public class EmployeeApiTest {
     public void testGet() {
         val employee = Objects.requireNonNull(Flux.just(employees).blockFirst());
         webTestClient
-                .get().uri("/employees/" + employee.getId())
+                .get().uri(PATH + "/" + employee.getId())
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody(Employee.class)
                 .isEqualTo(employee);
     }
@@ -79,11 +81,11 @@ public class EmployeeApiTest {
                 List.of(new Address("streetName", "1", "2", "12-345", "City", "Country")));
         val mono = Mono.just(dto);
         webTestClient
-                .patch().uri("/employees/" + employee.getId())
+                .patch().uri(PATH + "/" + employee.getId())
                 .body(mono, Employee.Dto.class)
                 .exchange()
                 .expectStatus().isAccepted()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody(Employee.class)
                 .consumeWith(response -> Assertions.assertEquals(Objects.requireNonNull(response.getResponseBody()).toDto(), dto))
                 .consumeWith(response -> Assertions.assertEquals(Objects.requireNonNull(response.getResponseBody()).getId(), employee.getId()));
@@ -93,17 +95,17 @@ public class EmployeeApiTest {
     public void testRemove() {
         val employee = Objects.requireNonNull(Flux.just(employees).blockFirst());
         webTestClient
-                .delete().uri("/employees/" + employee.getId())
+                .delete().uri(PATH + "/" + employee.getId())
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBody(Employee.class)
                 .isEqualTo(employee);
         webTestClient
-                .get().uri("/employees")
+                .get().uri(PATH)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectHeader().contentType(APPLICATION_JSON)
                 .expectBodyList(Employee.class)
                 .hasSize(9)
                 .doesNotContain(employee);
