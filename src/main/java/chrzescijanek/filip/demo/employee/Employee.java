@@ -1,5 +1,6 @@
 package chrzescijanek.filip.demo.employee;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class Employee {
 
     @Id
+    @Schema(required = true)
     private String id;
 
     @NotBlank(message = "Employee has to have a first name")
@@ -67,10 +69,19 @@ public class Employee {
     @AllArgsConstructor
     public static class Dto {
 
+        @Schema(required = true)
         private String firstName;
+
+        @Schema(required = true)
         private String lastName;
+
+        @Schema(required = true)
         private Integer age;
+
+        @Schema(required = true)
         private Gender gender;
+
+        @Schema(required = true)
         private List<Address> addresses;
 
         public Employee toEmployee() {
